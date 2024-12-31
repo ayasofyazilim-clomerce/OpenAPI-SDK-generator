@@ -1,4 +1,4 @@
-import { clean_URL, getCircularReplacer, initial_api_list } from ".";
+import { clean_URL, getCircularReplacer, initial_api_list } from "./generator.mjs";
 import { generateApi } from "./generator.mjs";
 
 

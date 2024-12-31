@@ -2,12 +2,11 @@
   "name": "@ayasofyazilim/sdk_generator",
   "version": "0.0.0",
   "description": "OpenAPI SDK Generator",
-  "main": "generator.mjs",
   "bin": {
     "generate": "generator.mjs"
   },
   "exports": {
-    "./*": "./*/index.ts"
+    "./*": "./*/index.js"
   },
   "scripts": {
     "gen:all": "node generator.mjs --all",
@@ -38,5 +37,6 @@
     "url": "https://github.com/ayasofyazilim-clomerce/OpenAPI-SDK-generator/issues"
   },
   "homepage": "https://github.com/ayasofyazilim-clomerce/OpenAPI-SDK-generator#readme",
-  "entry point": "index.ts"
+  "entry point": "index.js",
+  "main": "index.js"
 }
