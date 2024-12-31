@@ -2,8 +2,6 @@
 import { createClient } from "@hey-api/openapi-ts";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import fs from "fs";
-const BASE_URL = "http://192.168.1.105:";
-const WEBGATEWAY_PORT = 44336;
 
 
 export var initial_api_list = [
@@ -57,12 +55,16 @@ export function getCircularReplacer() {
   };
 }
 
-export async function generateApi(api_list) {
+export async function generateApi({
+  api_list,
+  base_url,
+  webgateway_port,
+}) {
   for (const api of api_list) {
     console.log(`✨ Processing ${api.output}...`);
-    const port = api?.port ? api.port : WEBGATEWAY_PORT;
+    const port = api?.port ? api.port : webgateway_port;
     const apiURL = clean_URL(
-      `${BASE_URL + port}/${api.input}` + "/swagger/v1/swagger.json",
+      `${base_url + port}/${api.input}` + "/swagger/v1/swagger.json",
     );
     const swaggerText = await SwaggerParser.dereference(apiURL);
     let temp_swagger = apiURL;

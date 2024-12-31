@@ -2,7 +2,7 @@ import { clean_URL, getCircularReplacer, initial_api_list } from "./generator.mj
 import { generateApi } from "./generator.mjs";
 
 
-module.exports = {
+export default {
   generateApi,
   initial_api_list,
   clean_URL,
