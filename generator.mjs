@@ -6,7 +6,7 @@ const BASE_URL = "http://192.168.1.105:";
 const WEBGATEWAY_PORT = 44336;
 
 
-var initial_api_list = [
+export var initial_api_list = [
   {
     input: "swagger-json/AuthServer",
     output: "Account",
@@ -34,11 +34,11 @@ var initial_api_list = [
   },
 ];
 
-function clean_URL(url) {
+export function clean_URL(url) {
   return url.replace(/\/\//g, "/").replace(/:\//g, "://");
 }
 
-function getCircularReplacer() {
+export function getCircularReplacer() {
   const ancestors = [];
   return function (key, value) {
     if (typeof value !== "object" || value === null) {
@@ -57,7 +57,7 @@ function getCircularReplacer() {
   };
 }
 
-async function generateApi(api_list) {
+export async function generateApi(api_list) {
   for (const api of api_list) {
     console.log(`✨ Processing ${api.output}...`);
     const port = api?.port ? api.port : WEBGATEWAY_PORT;
@@ -113,35 +113,3 @@ async function generateApi(api_list) {
     console.log(`✅ Generating ${api.output} is done.`);
   }
 }
-
-const args = process.argv.filter((val) => val.startsWith("--"));
-const isAll = args.filter((val) => val === "--all").length > 0;
-const hasFilter = args.filter((val) => val.startsWith("--filter")).length > 0;
-const knownArgs = ["--all", "--filter"];
-const unknownArgs = args.filter(
-  (val) =>
-    !knownArgs.includes(val) && !knownArgs.includes(val.split("=").at(0)),
-);
-async function init() {
-  if (unknownArgs.length > 0) {
-    return console.error(`❌ Unknown arguments: ${unknownArgs.join(", ")}`);
-  }
-  if (isAll && hasFilter) {
-    return console.error(`❌ Cannot use --all and --filter at the same time.`);
-  }
-  if (hasFilter) {
-    const filter = args
-      .filter((val) => val.startsWith("--filter"))[0]
-      .split("=")[1];
-    const filterArgs = filter.split(",");
-    initial_api_list = initial_api_list.filter((val) =>
-      filterArgs.includes(val.output),
-    );
-    if (initial_api_list.length === 0) {
-      return console.error(`❌ Unknown filter: ${filter}`);
-    }
-    console.log(`📃 Generating with filters: ${filter}`);
-  }
-  await generateApi(initial_api_list);
-}
-init();

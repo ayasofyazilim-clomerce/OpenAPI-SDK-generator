@@ -1,6 +1,6 @@
 {
-  "name": "@ayasofyazilim/SDK_generator",
-  "version": "0.0.96",
+  "name": "@ayasofyazilim/sdk_generator",
+  "version": "0.0.0",
   "description": "OpenAPI SDK Generator",
   "main": "generator.mjs",
   "bin": {
@@ -15,7 +15,7 @@
     "release": "release-it"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "release-it": "^17.1.1"
   },
@@ -24,5 +24,19 @@
     "@hey-api/openapi-ts": "0.45.1",
     "typescript": "^5.4.5"
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ayasofyazilim-clomerce/OpenAPI-SDK-generator.git"
+  },
+  "keywords": [
+    "SDK",
+    "OpenAPI",
+    "Swagger"
+  ],
+  "bugs": {
+    "url": "https://github.com/ayasofyazilim-clomerce/OpenAPI-SDK-generator/issues"
+  },
+  "homepage": "https://github.com/ayasofyazilim-clomerce/OpenAPI-SDK-generator#readme",
+  "entry point": "index.ts"
 }
