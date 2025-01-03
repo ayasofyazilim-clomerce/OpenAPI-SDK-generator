@@ -115,3 +115,10 @@ export async function generateApi({
     console.log(`✅ Generating ${api.output} is done.`);
   }
 }
+
+export function filterApiListByOutput({api_list,outputs,type="include"}){
+  if(type ==="include"){
+    return api_list.filter(item=>outputs.includes(item))
+  }
+  return api_list.filter(item=>!outputs.includes(item))
+}
