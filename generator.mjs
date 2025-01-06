@@ -112,7 +112,7 @@ export async function generateApi({
       fs.unlinkSync(temp_swagger);
       fs.writeFileSync(
         `${api.output}Service/index.ts`,
-        `\nexport * from './schemas.gen';`,
+        `\nexport * from './schemas.gen.ts';`,
         { flag: "a" },
       );
     } else {
