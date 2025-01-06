@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-import { createClient } from "@hey-api/openapi-ts";
+import { createClient, defaultPlugins } from "@hey-api/openapi-ts";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import fs from "fs";
 
@@ -79,6 +79,10 @@ export async function generateApi({
       );
 
       await createClient({
+        plugins: [
+          ...defaultPlugins,
+          '@hey-api/schemas'
+        ],
         input: temp_swagger,
         output: api.output + "Service",
         name: api.output + "ServiceClient",
@@ -89,6 +93,10 @@ export async function generateApi({
       });
       //types
       await createClient({
+        plugins: [
+          ...defaultPlugins,
+          '@hey-api/schemas'
+        ],
         input: apiURL,
         output: api.output + "Service",
         name: api.output + "ServiceClient",
@@ -109,6 +117,10 @@ export async function generateApi({
       );
     } else {
       await createClient({
+        plugins: [
+          ...defaultPlugins,
+          '@hey-api/schemas'
+        ],
         input: temp_swagger,
         output: api.output + "Service",
         name: api.output + "ServiceClient",
