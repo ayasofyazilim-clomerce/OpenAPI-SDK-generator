@@ -59,6 +59,7 @@ export async function generateApi({
   api_list,
   base_url,
   webgateway_port,
+  clientOptions
 }) {
   for (const api of api_list) {
     console.log(`✨ Processing ${api.output}...`);
@@ -84,6 +85,7 @@ export async function generateApi({
         client: "fetch",
         types: false,
         services: false,
+        ...clientOptions
       });
       //types
       await createClient({
@@ -97,6 +99,7 @@ export async function generateApi({
           // name: "PascalCase" TODO implement this
           tree: true,
         },
+        ...clientOptions
       });
       fs.unlinkSync(temp_swagger);
       fs.writeFileSync(
@@ -110,15 +113,16 @@ export async function generateApi({
         output: api.output + "Service",
         name: api.output + "ServiceClient",
         client: "fetch",
+        ...clientOptions
       });
     }
     console.log(`✅ Generating ${api.output} is done.`);
   }
 }
 
-export function filterApiListByOutput({api_list,outputs,type="include"}){
-  if(type ==="include"){
-    return api_list.filter(item=>outputs.includes(item))
+export function filterApiListByOutput({ api_list, outputs, type = "include" }) {
+  if (type === "include") {
+    return api_list.filter(item => outputs.includes(item))
   }
-  return api_list.filter(item=>!outputs.includes(item))
+  return api_list.filter(item => !outputs.includes(item))
 }
