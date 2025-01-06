@@ -1,6 +1,6 @@
 {
   "name": "@ayasofyazilim/sdk_generator",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "OpenAPI SDK Generator",
   "bin": {
     "generate": "./generator.mjs"
