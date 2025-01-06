@@ -3,35 +3,6 @@ import { createClient, defaultPlugins } from "@hey-api/openapi-ts";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import fs from "fs";
 
-
-export var initial_api_list = [
-  {
-    input: "swagger-json/AuthServer",
-    output: "Account",
-    dereference: true,
-  },
-  {
-    input: "swagger-json/Administration",
-    output: "Administration",
-    dereference: true,
-  },
-  {
-    input: "swagger-json/Identity",
-    output: "Identity",
-    dereference: true,
-  },
-  {
-    input: "swagger-json/Saas",
-    output: "Saas",
-    dereference: true,
-  },
-  {
-    input: "swagger-json/Setting",
-    output: "Setting",
-    dereference: true,
-  },
-];
-
 export function clean_URL(url) {
   return url.replace(/\/\//g, "/").replace(/:\//g, "://");
 }
@@ -69,71 +40,54 @@ export async function generateApi({
     );
     const swaggerText = await SwaggerParser.dereference(apiURL);
     let temp_swagger = apiURL;
-    if (api.dereference) {
-      console.log(typeof swaggerText);
-      console.log(`🎁 Dereferencing ${api.output} is from ${apiURL} done.`);
-      temp_swagger = `temp_${api.output}_swagger.json`;
-      fs.writeFileSync(
-        temp_swagger,
-        JSON.stringify(swaggerText, getCircularReplacer()),
-      );
+    console.log(`🎁 Dereferencing ${api.output} is from ${apiURL} done.`);
+    temp_swagger = `temp_${api.output}_swagger.json`;
+    fs.writeFileSync(
+      temp_swagger,
+      JSON.stringify(swaggerText, getCircularReplacer()),
+    );
 
-      await createClient({
-        experimentalParser: true,
-        plugins: [
-          ...defaultPlugins,
-          '@hey-api/schemas',
-          '@hey-api/transformers'
-        ],
-        input: temp_swagger,
-        output: api.output + "Service",
-        name: api.output + "ServiceClient",
-        client: "legacy/fetch",
-        types: false,
-        services: false,
-        ...clientOptions
-      });
-      //types
-      await createClient({
-        experimentalParser: true,
-        plugins: [
-          ...defaultPlugins,
-          '@hey-api/schemas',
-          '@hey-api/transformers'
-        ],
-        input: apiURL,
-        output: api.output + "Service",
-        name: api.output + "ServiceClient",
-        client: "legacy/fetch",
-        schemas: false,
-        types: {
-          // dates: "types+transform" TODO implement this
-          // name: "PascalCase" TODO implement this
-          tree: true,
+    //schemas
+    await createClient({
+      plugins: [
+        ...defaultPlugins,
+        {
+          name: '@hey-api/schemas',
+          nameBuilder: (name) => `$${name}`
         },
-        ...clientOptions
-      });
-      fs.unlinkSync(temp_swagger);
-      fs.writeFileSync(
-        `${api.output}Service/index.ts`,
-        `\nexport * from './schemas.gen.ts';`,
-        { flag: "a" },
-      );
-    } else {
-      await createClient({
-        experimentalParser: true,
-        plugins: [
-          ...defaultPlugins,
-          '@hey-api/schemas',
-          '@hey-api/transformers'
-        ],
-        input: temp_swagger,
-        output: api.output + "Service",
-        name: api.output + "ServiceClient",
-        client: "legacy/fetch",
-        ...clientOptions
-      });
-    }
+        { name: "@hey-api/typescript" }
+      ],
+      input: temp_swagger,
+      output: api.output + "Service",
+      client: "legacy/fetch",
+      experimentalParser: true,
+      ...clientOptions
+    });
+    //types
+    await createClient({
+      plugins: [
+        ...defaultPlugins,
+        {
+          name: '@hey-api/schemas',
+          nameBuilder: (name) => `$${name}`
+        },
+        { name: "@hey-api/typescript" }
+      ],
+      input: apiURL,
+      output: api.output + "Service_Temp",
+      client: "legacy/fetch",
+      experimentalParser: true,
+      ...clientOptions
+    });
+    fs.unlinkSync(temp_swagger);
+    fs.copyFileSync(`${api.output}Service_Temp/types.gen.ts`, `${api.output}Service/types.gen.ts`)
+    fs.rmSync(`${api.output}Service_Temp`, { recursive: true, force: true });
+    fs.writeFileSync(
+      `${api.output}Service/index.ts`,
+      `\nexport * from './schemas.gen.ts';\nexport * from './types.gen.ts';`,
+      { flag: "a" },
+    );
+
     console.log(`✅ Generating ${api.output} is done.`);
   }
 }
