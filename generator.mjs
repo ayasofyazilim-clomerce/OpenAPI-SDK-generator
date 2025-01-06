@@ -81,7 +81,8 @@ export async function generateApi({
       await createClient({
         plugins: [
           ...defaultPlugins,
-          '@hey-api/schemas'
+          '@hey-api/schemas',
+          '@hey-api/transformers'
         ],
         input: temp_swagger,
         output: api.output + "Service",
@@ -95,7 +96,8 @@ export async function generateApi({
       await createClient({
         plugins: [
           ...defaultPlugins,
-          '@hey-api/schemas'
+          '@hey-api/schemas',
+          '@hey-api/transformers'
         ],
         input: apiURL,
         output: api.output + "Service",
@@ -119,7 +121,8 @@ export async function generateApi({
       await createClient({
         plugins: [
           ...defaultPlugins,
-          '@hey-api/schemas'
+          '@hey-api/schemas',
+          '@hey-api/transformers'
         ],
         input: temp_swagger,
         output: api.output + "Service",
