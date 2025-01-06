@@ -79,6 +79,7 @@ export async function generateApi({
       );
 
       await createClient({
+        experimentalParser: true,
         plugins: [
           ...defaultPlugins,
           '@hey-api/schemas',
@@ -94,6 +95,7 @@ export async function generateApi({
       });
       //types
       await createClient({
+        experimentalParser: true,
         plugins: [
           ...defaultPlugins,
           '@hey-api/schemas',
@@ -119,6 +121,7 @@ export async function generateApi({
       );
     } else {
       await createClient({
+        experimentalParser: true,
         plugins: [
           ...defaultPlugins,
           '@hey-api/schemas',
