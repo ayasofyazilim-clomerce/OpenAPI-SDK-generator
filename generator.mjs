@@ -86,7 +86,7 @@ export async function generateApi({
         input: temp_swagger,
         output: api.output + "Service",
         name: api.output + "ServiceClient",
-        client: "fetch",
+        client: "legacy/fetch",
         types: false,
         services: false,
         ...clientOptions
@@ -100,7 +100,7 @@ export async function generateApi({
         input: apiURL,
         output: api.output + "Service",
         name: api.output + "ServiceClient",
-        client: "fetch",
+        client: "legacy/fetch",
         schemas: false,
         types: {
           // dates: "types+transform" TODO implement this
@@ -124,7 +124,7 @@ export async function generateApi({
         input: temp_swagger,
         output: api.output + "Service",
         name: api.output + "ServiceClient",
-        client: "fetch",
+        client: "legacy/fetch",
         ...clientOptions
       });
     }
