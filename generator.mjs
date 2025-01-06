@@ -47,8 +47,7 @@ export async function generateApi({
       JSON.stringify(swaggerText, getCircularReplacer()),
     );
 
-    //schemas
-    await createClient({
+    const defaultClientOptions = {
       plugins: [
         ...defaultPlugins,
         {
@@ -59,24 +58,28 @@ export async function generateApi({
       ],
       input: temp_swagger,
       output: api.output + "Service",
-      client: "legacy/fetch",
+      name: api.output + "ServiceClient",
+      client: {
+        name: "legacy/fetch",
+        bundle: true
+      },
       experimentalParser: true,
+    }
+
+    //schemas
+
+    await createClient({
+      ...defaultClientOptions,
+      output: api.output + "Service",
       ...clientOptions
     });
     //types
     await createClient({
-      plugins: [
-        ...defaultPlugins,
-        {
-          name: '@hey-api/schemas',
-          nameBuilder: (name) => `$${name}`
-        },
-        { name: "@hey-api/typescript" }
-      ],
-      input: apiURL,
+      ...defaultClientOptions,
       output: api.output + "Service_Temp",
-      client: "legacy/fetch",
-      experimentalParser: true,
+      logs: {
+        level: "silent",
+      },
       ...clientOptions
     });
     fs.unlinkSync(temp_swagger);
