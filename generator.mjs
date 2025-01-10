@@ -56,8 +56,6 @@ export async function generateApi({
         },
         { name: "@hey-api/typescript" }
       ],
-      input: temp_swagger,
-      output: api.output + "Service",
       name: api.output + "ServiceClient",
       client: {
         name: "legacy/fetch",
@@ -67,19 +65,17 @@ export async function generateApi({
     }
 
     //schemas
-
     await createClient({
       ...defaultClientOptions,
+      input: temp_swagger,
       output: api.output + "Service",
       ...clientOptions
     });
     //types
     await createClient({
       ...defaultClientOptions,
+      input: apiURL,
       output: api.output + "Service_Temp",
-      logs: {
-        level: "silent",
-      },
       ...clientOptions
     });
     fs.unlinkSync(temp_swagger);
