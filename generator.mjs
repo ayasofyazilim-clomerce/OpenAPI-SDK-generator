@@ -97,6 +97,15 @@ export async function generateApi({
     console.log(`✅ Generating ${api.output} is done.`);
   }
 
+  // A run with services but no emitted core means the client shape changed
+  // under us. Fail loudly: the patch this skips is the whole point, and its
+  // absence is otherwise invisible until a download arrives corrupted.
+  if (api_list.length > 0 && !coreCentralized) {
+    throw new Error(
+      "sdk-generator: no core/ runtime was generated, so the binary-response " +
+        "patch was NOT applied. The legacy client shape changed - see README.md.",
+    );
+  }
   // Applied once, to the single shared core, after every service has donated
   // or dropped its copy. Throws if hey-api's template moved - a loud failure
   // here is the whole point, since the symptom otherwise is a corrupt download.
@@ -107,7 +116,7 @@ export async function generateApi({
 
 export function filterApiListByOutput({ api_list, outputs, type = "include" }) {
   if (type === "include") {
-    return api_list.filter(item => outputs.includes(item))
+    return api_list.filter((item) => outputs.includes(item.output));
   }
-  return api_list.filter(item => !outputs.includes(item))
+  return api_list.filter((item) => !outputs.includes(item.output));
 }

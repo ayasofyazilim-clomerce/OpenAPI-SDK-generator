@@ -61,9 +61,26 @@ const ALREADY_PATCHED = /else\s+if\s*\(\s*response\.ok\s*\)/;
 
 export function patchResponseBody(root = ".") {
   const file = path.join(root, CORE_DIR, "request.ts");
+
+  if (!fs.existsSync(file)) {
+    throw new Error(
+      `sdk-generator: ${file} does not exist, so the binary-response patch was ` +
+        "NOT applied. Expected a generated core runtime at that path.",
+    );
+  }
+
   const source = fs.readFileSync(file, "utf8");
 
   if (ALREADY_PATCHED.test(source)) return false;
+
+  const hits = source.match(/return\s+await\s+response\.text\(\)/g) ?? [];
+  if (hits.length !== 1) {
+    throw new Error(
+      `sdk-generator: expected exactly one \`response.text()\` in ${file}, found ` +
+        `${hits.length}. The hey-api legacy template has changed, so the ` +
+        "binary-response patch was NOT applied - see README.md.",
+    );
+  }
 
   if (!TEXT_BRANCH_END.test(source)) {
     throw new Error(

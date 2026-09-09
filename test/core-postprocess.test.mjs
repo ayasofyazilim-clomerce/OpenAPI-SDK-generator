@@ -74,8 +74,11 @@ test("rewriting twice is a no-op", () => {
   assert.equal(twice, once);
 });
 
-// Verbatim hey-api 0.60.1 legacy output: tab-indented, single-quoted. This is
-// what the patch actually sees, since prettier runs later in the consumer.
+// The anchor region of hey-api 0.60.1 legacy output, abbreviated - real output
+// has a six-entry binaryTypes array and an extra `|| contentType.includes('+json')`
+// clause, both trimmed here since the patch doesn't care about them. What must
+// stay faithful is the tab indentation and single quotes, since prettier runs
+// later in the consumer and this is what the patch actually sees first.
 const RAW_REQUEST_TS = [
   "export const getResponseBody = async (response: Response): Promise<unknown> => {",
   "\tif (response.status !== 204) {",
@@ -146,4 +149,47 @@ test("throws when the anchor is gone, naming the file", () => {
   const root = rootWithCore("export const getResponseBody = async () => undefined;\n");
 
   assert.throws(() => patchResponseBody(root), /hey-api legacy template has changed/);
+});
+
+test("throws a clear error when core/request.ts does not exist", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "sdkgen-patch-"));
+  // No core/ directory was ever created under this root.
+
+  assert.throws(() => patchResponseBody(root), /does not exist/);
+});
+
+test("throws when the text() anchor is not unique", () => {
+  const duplicated = RAW_REQUEST_TS + "\n\t\treturn await response.text();\n";
+  const root = rootWithCore(duplicated);
+
+  assert.throws(() => patchResponseBody(root), /found 2/);
+});
+
+// Every consumer's second and later generation re-runs over pre-existing
+// output: hey-api recreates each service directory - and its own unpatched
+// core/ - from scratch, then centralizeCore/patchResponseBody run again over
+// what is now a stale, already-patched shared core.
+test("a consumer's second generation re-run patches the shared core exactly once", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "sdkgen-rerun-"));
+  const serviceDir = path.join(root, "AService");
+
+  function writeFreshServiceCore() {
+    fs.mkdirSync(path.join(serviceDir, CORE_DIR), { recursive: true });
+    fs.writeFileSync(path.join(serviceDir, CORE_DIR, "request.ts"), RAW_REQUEST_TS);
+  }
+
+  // First generation: the service donates its freshly generated core.
+  writeFreshServiceCore();
+  assert.equal(centralizeCore(serviceDir, false, root), true);
+  assert.equal(patchResponseBody(root), true);
+
+  // Second generation: hey-api wipes and recreates the service directory,
+  // so its core/request.ts comes back unpatched, same as the first time.
+  writeFreshServiceCore();
+  assert.equal(centralizeCore(serviceDir, false, root), true);
+  assert.equal(patchResponseBody(root), true);
+
+  const src = fs.readFileSync(path.join(root, CORE_DIR, "request.ts"), "utf8");
+  assert.equal((src.match(/\} else if \(response\.ok\) \{/g) ?? []).length, 1);
+  assert.equal(src.match(/response\.blob\(\)/g).length, 2);
 });

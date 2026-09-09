@@ -25,6 +25,10 @@ jobs:
       # the thing a hey-api change would break, so it gates every publish.
       - run: npm test
 
+      - name: Tag must match package.json version
+        run: |
+          test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
