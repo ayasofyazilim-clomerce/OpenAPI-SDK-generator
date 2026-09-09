@@ -67,9 +67,6 @@ The generated client uses hey-api's `legacy/fetch` client, which emits the
 Anything from 0.87.0 onward cannot generate this client shape at all. Do not
 widen the pin to a caret range.
 
-`@apidevtools/swagger-parser` is likewise pinned, to `13.0.0`: the gateway
-serves OpenAPI 3.0.4, and versions before 13 reject anything past 3.0.3.
-
 The legacy client's `getResponseBody` discards the body of any 2xx response
 whose `Content-Type` is outside its four branches — including
 `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, so `.xlsx`
@@ -78,3 +75,14 @@ every version from 0.60.1 to 0.86.0 and was never fixed upstream, so
 `patchResponseBody()` in `core-postprocess.mjs` fixes it on the generated
 output. It throws if hey-api's template shifts under it — if generation starts
 failing there, re-check the patch rather than deleting it.
+
+## Why `@apidevtools/swagger-parser` is pinned to 13.0.0
+
+The bug that prompted this pin was narrower than a version range. `10.1.0` — the
+exact version this repo's previous lockfile installed — is the only release in
+the 10.x-12.x line whose supported-version list omits OpenAPI `3.0.4`, which the
+gateway now serves. Generation failed there with `Unsupported OpenAPI version:
+3.0.4` before hey-api was reached. `10.1.1` onward already accept it.
+
+Pinning exactly, rather than widening the range, is what stops a stale lockfile
+from reintroducing that one bad build.
