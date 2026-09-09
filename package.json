@@ -6,6 +6,7 @@
     "generate": "./generator.mjs"
   },
   "scripts": {
+    "test": "node --test test/*.mjs",
     "gen:all": "node generator.mjs --all",
     "init-release": "publish --access public",
     "release": "release-it"
