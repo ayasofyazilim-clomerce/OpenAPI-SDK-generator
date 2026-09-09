@@ -1,9 +1,15 @@
-import { clean_URL, getCircularReplacer } from "./generator.mjs";
-import { generateApi } from "./generator.mjs";
-
+import {
+  clean_URL,
+  filterApiListByOutput,
+  generateApi,
+  getCircularReplacer,
+} from "./generator.mjs";
 
 export default {
-  generateApi,
   clean_URL,
+  filterApiListByOutput,
+  generateApi,
   getCircularReplacer,
 };
+
+export { clean_URL, filterApiListByOutput, generateApi, getCircularReplacer };

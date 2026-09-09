@@ -2,6 +2,7 @@
 import { createClient, defaultPlugins } from "@hey-api/openapi-ts";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import fs from "fs";
+import { centralizeCore, patchResponseBody } from "./core-postprocess.mjs";
 
 export function clean_URL(url) {
   return url.replace(/\/\//g, "/").replace(/:\//g, "://");
@@ -32,6 +33,7 @@ export async function generateApi({
   webgateway_port,
   clientOptions
 }) {
+  let coreCentralized = false;
   for (const api of api_list) {
     console.log(`✨ Processing ${api.output}...`);
     const port = api?.port ? api.port : webgateway_port;
@@ -69,14 +71,16 @@ export async function generateApi({
       ...defaultClientOptions,
       input: temp_swagger,
       output: api.output + "Service",
-      ...clientOptions
+      ...clientOptions,
+      exportCore: true
     });
     //types
     await createClient({
       ...defaultClientOptions,
       input: apiURL,
       output: api.output + "Service_Temp",
-      ...clientOptions
+      ...clientOptions,
+      exportCore: false
     });
     fs.unlinkSync(temp_swagger);
     fs.copyFileSync(`${api.output}Service_Temp/types.gen.ts`, `${api.output}Service/types.gen.ts`)
@@ -87,7 +91,17 @@ export async function generateApi({
       { flag: "a" },
     );
 
+    // Keep one shared core folder and repoint this service's imports at it.
+    coreCentralized = centralizeCore(`${api.output}Service`, coreCentralized);
+
     console.log(`✅ Generating ${api.output} is done.`);
+  }
+
+  // Applied once, to the single shared core, after every service has donated
+  // or dropped its copy. Throws if hey-api's template moved - a loud failure
+  // here is the whole point, since the symptom otherwise is a corrupt download.
+  if (coreCentralized) {
+    patchResponseBody();
   }
 }
 
